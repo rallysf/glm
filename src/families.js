@@ -30,7 +30,7 @@ exports.families.Binomial = function (link) {
 
 exports.families.Gaussian = function (link) {
   // default to log link function
-  if (!link) { link = exports.links.Log(); }
+  if (!link) { link = exports.links.Identity(); }
 
   var model = {};
   model.deviance = function(endogenous, mu) {
@@ -41,5 +41,8 @@ exports.families.Gaussian = function (link) {
     return dev;
   };
   model.link = link;
+  model.fitted = function (eta) {
+    return model.link.inverse(eta);
+  };
   return model;
 };
