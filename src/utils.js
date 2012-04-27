@@ -1,9 +1,14 @@
 exports.utils = exports.utils || {};
 
-exports.utils.checkConvergence = function (newWeights, oldWeights, iterations, maxIterations) {
-  var change = 0.0, tol = 1e-8;
-  newWeights.map(function(x, i) { change += Math.pow(x - oldWeights.e(i), 2); });
-  return change < tol || (iterations > maxIterations);
+exports.utils.mean = function (vector) {
+  var sum = 0.0;
+  for (var i = 0; i < vector.length; i++) { sum += vector[i]; }
+  return sum / vector.length;
+};
+
+exports.utils.checkConvergence = function (newDev, oldDev, iterations, maxIterations) {
+  var tol = 1e-8;
+  return (oldDev != null && (Math.abs(newDev - oldDev) < tol)) || (iterations > maxIterations);
 };
 
 exports.utils.softThreshold = function (z, gamma) {
@@ -19,8 +24,20 @@ exports.utils.softThreshold = function (z, gamma) {
   }
 };
 
-exports.utils.zeros = function (n_zeros) {
+exports.utils.makeArray = function (n_zeros, initialValue) {
   var vector = [];
-  for (var i = 0; i < n_zeros; i++) { vector.push(0); }
+  for (var i = 0; i < n_zeros; i++) { vector.push(initialValue); }
   return vector;
+};
+
+exports.utils.zeros = function (n_zeros) {
+  return exports.utils.makeArray(n_zeros, 0);
+};
+
+exports.utils.map = function (ary, fn) {
+  var out = [];
+  for (var i = 0; i < ary.length; i++) {
+    out.push(fn(ary[i]));
+  }
+  return out;
 };

@@ -13,7 +13,7 @@ util.puts(JSON.stringify({
     "url": "http://github.com/rally/glm.js.git"
   },
   "devDependencies": {
-    "sylvester": "0.1.3",
+    "jquery": "1.7.2",
     "vows": "0.6.1",
     "uglify-js": "1.2.5"
   }

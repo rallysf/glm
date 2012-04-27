@@ -1,4 +1,3 @@
-require('sylvester');
 var vows = require('vows'),
     assert = require('assert'),
     glm = require('../glm');
@@ -9,7 +8,7 @@ suite.addBatch({
   "binomial": {
     topic: function() { return glm.families.Binomial; },
     "should properly return a starting mu value": function (binomial) {      
-      assert.deepEqual(binomial().initialMu([0.5, 1.5]), $V([0.5, 1.0]));
+      assert.deepEqual(binomial().initialMu([0.5, 1.5]), [0.5, 1.0]);
     },
     "should be able to compute binomial deviance": function (binomial) {
       var fam = binomial();
@@ -17,11 +16,11 @@ suite.addBatch({
     },
     "should accept a logit link function": function (binomial) {
       var fam = binomial(glm.links.Logit());
-      assert.deepEqual(fam.link.f([0.5, 0.5]), $V([Math.log(1), Math.log(1)]));
+      assert.deepEqual(fam.link.f([0.5, 0.5]), [Math.log(1), Math.log(1)]);
     },
     "should default to logit link function when none is provided": function (binomial) {
       var fam = binomial();
-      assert.deepEqual(fam.link.f([0.5, 0.5]), $V([Math.log(1), Math.log(1)]));
+      assert.deepEqual(fam.link.f([0.5, 0.5]), [Math.log(1), Math.log(1)]);
     }
   }
 });

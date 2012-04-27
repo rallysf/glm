@@ -8,13 +8,13 @@ suite.addBatch({
   "checkConvergence": {
     topic: function () { return glm.utils.checkConvergence; },
     "returns true when optimization procedure has converged": function (checkConvergence) {
-      assert.isTrue(checkConvergence($V([1, 2]), $V([1, 2]), 1, 100));
+      assert.isTrue(checkConvergence(1, 1, 1, 100));
     },
     "returns true when number of iterations has overlapped maximum": function (checkConvergence) {
-      assert.isTrue(checkConvergence($V([1]), $V([2]), 101, 100));
+      assert.isTrue(checkConvergence(1, 20, 101, 100));
     },
     "returns false when number of iterations has not yet overlapped maximum and not yet overlapped maximum": function (checkConvergence) {
-      assert.isFalse(checkConvergence($V([1]), $V([2]), 1, 1));
+      assert.isFalse(checkConvergence(1, 2, 1, 1));
     }
   },
   "softThreshold": {
@@ -23,6 +23,15 @@ suite.addBatch({
       assert.equal(softThreshold(3, 1), 2);
       assert.equal(softThreshold(0.1, 1), 0);
       assert.equal(softThreshold(-3, 1), -2);
+    }
+  },
+  "mean": {
+    topic: function () { return glm.utils.mean; },
+    "correctly computes the average of an input vector": function (mean) {
+      assert.equal(mean([1]), 1);
+      assert.equal(mean([1, 2]), 1.5);
+      assert.equal(mean([0, 2, 4]), 2);
+      assert.equal(mean([0, -2, -4]), -2);
     }
   }
 });
