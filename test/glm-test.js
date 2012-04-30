@@ -8,9 +8,11 @@ suite.addBatch({
   "Logistic regression with binomial error": {
     topic: function () { return glm.GLM; },
     "should properly train a GLM model with binomial distribution and logisitic link function": function (GLM) {
-      var glm_model = GLM(glm.families.Binomial(glm.links.Logit()));
-      glm_model.fit([0, 0, 1, 1, 1], [[1], [2], [3], [4], [5]]); // binary varibles in {0, 1}
-      assert.deepEqual(glm_model.predict([[0], [5]]), [0, 1]);
+      var glm_model = GLM(glm.families.Binomial(glm.links.Logit())),
+          X = [[-1, 0], [0, 1], [1, 1]],
+          Y = [0, 1, 1];
+      glm_model.fit(Y, X);
+      assert.deepEqual(glm_model.predict(X), Y);
     }
   },
   "Linear regression with gaussian error": {

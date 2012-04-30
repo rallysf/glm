@@ -4,6 +4,7 @@ var vows = require('vows'),
 
 var suite = vows.describe('optimization');
 
+/*
 suite.addBatch({
   "CoordinateDescentPenalizedWeightedLeastSqures": {
     topic: function () { return glm.optimization.CoordinateDescentPenalizedWeightedLeastSquares; },
@@ -21,5 +22,6 @@ suite.addBatch({
     }
   }
 });
+*/
 
 suite.export(module);

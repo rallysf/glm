@@ -1,10 +1,10 @@
 exports.optimization = exports.optimization || {};
 
+/* TODO: this is broken and incomplete
 exports.optimization.CoordinateDescentPenalizedWeightedLeastSquares = function (endogenous, exogenous, gradientFunction, regularizationParameter, elasticnetParameter, maxIterations) {
-  // TODO: this is incomplete
   // initialize defaults
   if (!regularizationParameter) { regularizationParameter = 0.01; }
-  if (!elasticnetParameter) { elasticnetParameter = 0.5; /* defaults to half lasso, half ridge */ }
+  if (!elasticnetParameter) { elasticnetParameter = 0.5; } // defaults to half lasso, half ridge
   if (!maxIterations) { maxIterations = 1000; }
 
   var converged = false,
@@ -24,6 +24,7 @@ exports.optimization.CoordinateDescentPenalizedWeightedLeastSquares = function (
   }
   return weights;
 };
+*/
 
 exports.optimization.IRLS = function (endogenous,
                                       exogenous,
