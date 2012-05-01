@@ -1,0 +1,21 @@
+{
+  "name": "GLM",
+  "version": "1.0.2",
+  "description": "Generalized Linear Models",
+  "keywords": [
+    "glm",
+    "statistics",
+    "models"
+  ],
+  "homepage": "https://rally.github.com/glm.js",
+  "main": "./glm.js",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/rally/glm.js.git"
+  },
+  "devDependencies": {
+    "jquery": "1.7.2",
+    "vows": "0.6.1",
+    "uglify-js": "1.2.5"
+  }
+}
