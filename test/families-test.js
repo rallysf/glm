@@ -21,6 +21,10 @@ suite.addBatch({
     "should default to logit link function when none is provided": function (binomial) {
       var fam = binomial();
       assert.deepEqual(fam.link.f([0.5, 0.5]), [Math.log(1), Math.log(1)]);
+    },
+    "should properly compute weights": function (binomial) {
+      var fam = binomial();
+      assert.ok(glm.testing.fuzzyArrayEqual(fam.weights([.1, .2, .3]), [0.09,  0.16,  0.21]));
     }
   }
 });

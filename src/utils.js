@@ -37,7 +37,21 @@ exports.utils.zeros = function (n_zeros) {
 exports.utils.map = function (ary, fn) {
   var out = [];
   for (var i = 0; i < ary.length; i++) {
-    out.push(fn(ary[i]));
+    out.push(fn(ary[i], i));
   }
   return out;
+};
+
+exports.utils.atleast_2d = function (ary) {
+  // will make sure JS array is at least 2 dimensional
+  if (ary[0].constructor == Array) {
+    return ary;
+  } else {
+    return exports.utils.map(ary, function (x) { return [x]; });
+  }
+};
+
+exports.utils.add_constant = function (ary) {
+  exports.utils.map(ary, function (x) { x.push(1);});
+  return ary;
 };

@@ -1,6 +1,8 @@
 exports.families = exports.families || {};
 
+
 exports.families.Binomial = function (link) {
+  // default to logit
   if (!link) { link = exports.links.Logit(); }
 
   var model = {};
@@ -24,6 +26,12 @@ exports.families.Binomial = function (link) {
   model.predict = function (mu) {
     return model.link.f(mu);
   };
+  model.weights = function (mu) {
+    // TODO write test & cleanup
+    function fix(z) { if (z < 1e-10) { return 1e-10; } else { if (z > (1 - 1e-10)) { return 1 - 1e-10; } else { return z; } } }
+    var variance = exports.utils.map(mu, function(m) { return fix(m) * (1 - fix(m)) ;} );
+    return exports.utils.map(model.link.derivative(mu), function (m, i) { return 1.0 / (Math.pow(m, 2) * variance[i] ); });
+  };
   model.fitted = function (eta) {
     return model.link.inverse(eta);
   };
@@ -43,12 +51,17 @@ exports.families.Gaussian = function (link) {
   };
   model.initialMu = function (y) {
     var y_mean = exports.utils.mean(y), mu = [];
-    for (var i = 0; i < y.length; i++) { mu.push((y[i] - y_mean) / 2.0); }
+    for (var i = 0; i < y.length; i++) { mu.push((y[i] + y_mean) / 2.0); }
     return mu;
   };
   model.link = link;
   model.predict = function (mu) {
     return model.link.f(mu);
+  };
+  model.weights = function (mu) {
+    // TODO write test & cleanup
+    var variance = exports.utils.makeArray(mu.length, 1);
+    return exports.utils.map(model.link.derivative(mu), function (m, i) { return 1.0 / (Math.pow(m, 2) / variance[i] ); });
   };
   model.fitted = function (eta) {
     return model.link.inverse(eta);
