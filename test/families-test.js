@@ -16,11 +16,11 @@ suite.addBatch({
     },
     "should accept a logit link function": function (binomial) {
       var fam = binomial(glm.links.Logit());
-      assert.deepEqual(fam.link.f([0.5, 0.5]), [Math.log(1), Math.log(1)]);
+      assert.deepEqual(fam.link([0.5, 0.5]), [Math.log(1), Math.log(1)]);
     },
     "should default to logit link function when none is provided": function (binomial) {
       var fam = binomial();
-      assert.deepEqual(fam.link.f([0.5, 0.5]), [Math.log(1), Math.log(1)]);
+      assert.deepEqual(fam.link([0.5, 0.5]), [Math.log(1), Math.log(1)]);
     },
     "should properly compute weights": function (binomial) {
       var fam = binomial();

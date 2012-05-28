@@ -4,8 +4,8 @@ JS_COMPILER = ./node_modules/uglify-js/bin/uglifyjs
 all: glm.min.js package.json
 
 glm.js: \
-	src/testing.js \
 	src/numeric.js \
+	src/testing.js \
 	src/utils.js \
 	src/glm.js \
 	src/families.js \
