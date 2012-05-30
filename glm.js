@@ -3818,10 +3818,6 @@ exports.GLM.links.NegativeBinomial = function (alpha) {
   }
   return f;
 };
-
-exports.GLM.links.CDFLink = function (cdf) {
-  // TODO
-};
 exports.GLM.optimization = exports.optimization || {};
 
 /* TODO: this is broken and incomplete

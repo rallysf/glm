@@ -23,7 +23,6 @@ suite.addBatch({
   }
 });
 */
-
 suite.addBatch({
   "IRLS": {
     topic: function () { return glm.GLM.optimization.linearSolve; },
