@@ -1,11 +1,12 @@
-var util = require("util"),
-    glm = require("../glm");
-
-util.puts(JSON.stringify({
+{
   "name": "GLM",
-  "version": glm.version,
+  "version": "1.0.3",
   "description": "Generalized Linear Models",
-  "keywords": ["glm", "statistics", "models"],
+  "keywords": [
+    "glm",
+    "statistics",
+    "models"
+  ],
   "homepage": "https://rally.github.com/glm.js",
   "main": "./glm.js",
   "repository": {
@@ -16,4 +17,4 @@ util.puts(JSON.stringify({
     "vows": "0.6.1",
     "uglify-js": "1.2.5"
   }
-}, null, 2));
+}

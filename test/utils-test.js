@@ -6,7 +6,7 @@ var suite = vows.describe('utils');
 
 suite.addBatch({
   "checkConvergence": {
-    topic: function () { return glm.utils.checkConvergence; },
+    topic: function () { return glm.GLM.utils.checkConvergence; },
     "returns true when optimization procedure has converged": function (checkConvergence) {
       assert.isTrue(checkConvergence(1, 1, 1, 100));
     },
@@ -18,7 +18,7 @@ suite.addBatch({
     }
   },
   "softThreshold": {
-    topic: function () { return glm.utils.softThreshold; },
+    topic: function () { return glm.GLM.utils.softThreshold; },
     "will threshold values below gamma": function (softThreshold) {
       assert.equal(softThreshold(3, 1), 2);
       assert.equal(softThreshold(0.1, 1), 0);
@@ -26,7 +26,7 @@ suite.addBatch({
     }
   },
   "mean": {
-    topic: function () { return glm.utils.mean; },
+    topic: function () { return glm.GLM.utils.mean; },
     "correctly computes the average of an input vector": function (mean) {
       assert.equal(mean([1]), 1);
       assert.equal(mean([1, 2]), 1.5);

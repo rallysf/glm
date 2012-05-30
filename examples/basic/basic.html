@@ -4,25 +4,28 @@
     <script src="d3.v2.js"></script>
     <script src="../../src/numeric.js"></script>
     <script src="../../glm.js"></script>
-    <script src="../../jquery.min.js"></script>
+    <script src="jquery.min.js"></script>
   </head>
   <body>
+    <h1>Horsepower v. MPG for Cars</h1>
+    <p>The chart shows a logistic curve fit between the horsepower and miles per gallon for individal cars in the <a href="http://stat.ethz.ch/R-manual/R-patched/library/datasets/html/mtcars.html">Motor Trend Car Road Test dataset</a>. Instead of using the raw horsepower value from the dataset, we convert it to a binary value. If it is below a certain cutoff point the assigned value is 1, otherwise it's assigned 0. Use the slider to adjust this cutoff value and watch how the logistic curve changes.</p>
     <div id="chart-container"></div>
-    <p>HP: <input type="range"  min="90" max="340" id="binSplitter" value="125" /> <span id="mpgValue"> </p>
+    <p>Use the slider to choose a horsepower to divide the dataset.</p>
+    <p>HP: <input type="range"  min="60" max="340" id="binSplitter" value="125" /> <span id="mpgValue"> </p>
   </body>
     <script>
-      // from motortrends cars dataset
+      // extracted from motortrends cars dataset
       var cars = {mpg: [21.0,21.0,22.8,21.4,18.7,18.1,14.3,24.4,22.8,19.2,17.8,16.4,17.3,15.2,10.4,10.4,14.7,32.4,30.4,33.9,21.5,15.5,15.2,13.3,19.2,27.3,26.0,30.4,15.8,19.7,15.0,21.4], hp: [110,110,93,110,175,105,245,62,95,123,123,180,180,180,205,215,230,66,52,65,97,150,150,245,175,66,91,113,264,175,335,109], names: [ "Mazda RX4", "Mazda RX4 Wag", "Datsun 710", "Hornet 4 Drive", "Hornet Sportabout", "Valiant", "Duster 360", "Merc 240D", "Merc 230", "Merc 280", "Merc 280C", "Merc 450SE", "Merc 450SL", "Merc 450SLC", "Cadillac Fleetwood", "Lincoln Continental", "Chrysler Imperial", "Fiat 128", "Honda Civic", "Toyota Corolla", "Toyota Corona", "Dodge Challenger", "AMC Javelin", "Camaro Z28", "Pontiac Firebird", "Fiat X1-9", "Porsche 914-2", "Lotus Europa", "Ford Pantera L", "Ferrari Dino", "Maserati Bora", "Volvo 142E"]};
 
       function binarizer(data) {
         // get split value from DOM
         var mid = parseInt(document.getElementById('binSplitter').value);
-        return utils.map(data, function (x) { return (x > mid) ? 1 : 0; });
+        return GLM.utils.map(data, function (x) { return (x > mid) ? 0 : 1; });
       }
 
       function makeArray(data) {
         var mpg = data.mpg, hp = binarizer(data.hp), names = data.names;
-        return utils.map(mpg, function (m, i) { return {x: m, y: hp[i], name: names[i]}; });
+        return GLM.utils.map(mpg, function (m, i) { return {x: m, y: hp[i], name: names[i]}; });
       }
 
       var w = 480, h = 275, p = 20,
@@ -37,6 +40,17 @@
           .attr("height", h + p * 2)
         .append("svg:g")
           .attr("transform", "translate(" + p + "," + p + ")");
+
+      vis.append("text")
+        .attr("x", w / 2 - 15)
+        .attr("y", h + 20)
+        .text("Miles Per Gallon");
+      
+      vis.append("g")
+        .attr("transform", "translate(0," + h / 2 + ")")
+        .append("text")
+        .attr("transform", "rotate(270)")
+        .text("Binarized Horsepower");
 
       var rules = vis.selectAll("g.rule")
           .data(x.ticks(10))
@@ -76,8 +90,8 @@
           .attr("class", "line")
           .attr("cx", function(d) { return x(d.x); })
           .attr("cy", function(d) { return y(d.y); })
-          .attr("title", function (d) { return d.name; })
           .attr("r", 3.5);
+      circles.append("title").text(function(d) { return d.name });
 
       var line = d3.svg.line()
         .x(function(d) { return x(d.x); })
@@ -93,8 +107,8 @@
           .attr("class", "line");
 
       function createPathAndMoveBubbles() {
-        var glm = GLM(families.Binomial()).fit(binarizer(cars.hp), cars.mpg);
-            glm_data = utils.map(numeric.linspace(lowerBound, upperBound, 200), function (x) {
+        var glm = GLM(GLM.families.Binomial()).fit(binarizer(cars.hp), cars.mpg);
+            glm_data = GLM.utils.map(numeric.linspace(lowerBound, upperBound, 200), function (x) {
               return {x: x, y: glm.predict([x])[0]};
             });
         circles.data(makeArray(cars)).transition().call(circlizer);

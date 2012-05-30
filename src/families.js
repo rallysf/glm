@@ -1,14 +1,10 @@
-exports.families = exports.families || {};
+exports.GLM.families = exports.GLM.families || {};
 
-var FamilyBase = function () {
-
-};
-
-exports.families.Binomial = function (link) {
+exports.GLM.families.Binomial = function (link) {
   // default to logit
-  if (!link) { link = exports.links.Logit(); }
+  if (!link) { link = exports.GLM.links.Logit(); }
 
-  var model = FamilyBase;
+  model = {};
 
   model.initialMu = function (y) {
     var init = [];
@@ -33,10 +29,9 @@ exports.families.Binomial = function (link) {
     return model.link(mu);
   };
   model.weights = function (mu) {
-    // TODO write test & cleanup
     function fix(z) { if (z < 1e-10) { return 1e-10; } else { if (z > (1 - 1e-10)) { return 1 - 1e-10; } else { return z; } } }
-    var variance = exports.utils.map(mu, function(m) { return fix(m) * (1 - fix(m)) ;} );
-    return exports.utils.map(model.link.derivative(mu), function (m, i) { return 1.0 / (Math.pow(m, 2) * variance[i] ); });
+    var variance = exports.GLM.utils.map(mu, function(m) { return fix(m) * (1 - fix(m)) ;} );
+    return exports.GLM.utils.map(model.link.derivative(mu), function (m, i) { return 1.0 / (Math.pow(m, 2) * variance[i] ); });
   };
   model.fitted = function (eta) {
     return model.link.inverse(eta);
@@ -44,9 +39,9 @@ exports.families.Binomial = function (link) {
   return model;
 };
 
-exports.families.Gaussian = function (link) {
+exports.GLM.families.Gaussian = function (link) {
   // default to identity link function
-  if (!link) { link = exports.links.Identity(); }
+  if (!link) { link = exports.GLM.links.Identity(); }
   var model = {};
 
   model.deviance = function (endogenous, mu) {
@@ -58,7 +53,7 @@ exports.families.Gaussian = function (link) {
   };
 
   model.initialMu = function (y) {
-    var y_mean = exports.utils.mean(y), mu = [];
+    var y_mean = exports.GLM.utils.mean(y), mu = [];
     for (var i = 0; i < y.length; i++) { mu.push((y[i] + y_mean) / 2.0); }
     return mu;
   };
@@ -69,8 +64,8 @@ exports.families.Gaussian = function (link) {
   };
   model.weights = function (mu) {
     // TODO write test & cleanup
-    var variance = exports.utils.makeArray(mu.length, 1);
-    return exports.utils.map(model.link.derivative(mu), function (m, i) { return 1.0 / (Math.pow(m, 2) / variance[i] ); });
+    var variance = exports.GLM.utils.makeArray(mu.length, 1);
+    return exports.GLM.utils.map(model.link.derivative(mu), function (m, i) { return 1.0 / (Math.pow(m, 2) / variance[i] ); });
   };
   model.fitted = function (eta) {
     return model.link.inverse(eta);

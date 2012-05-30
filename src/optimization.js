@@ -1,4 +1,4 @@
-exports.optimization = exports.optimization || {};
+exports.GLM.optimization = exports.optimization || {};
 
 /* TODO: this is broken and incomplete
 exports.optimization.CoordinateDescentPenalizedWeightedLeastSquares = function (endogenous, exogenous, gradientFunction, regularizationParameter, elasticnetParameter, maxIterations) {
@@ -10,7 +10,7 @@ exports.optimization.CoordinateDescentPenalizedWeightedLeastSquares = function (
   var converged = false,
       iteration = 0,
       n_features = endogenous[0].length;
-      weights = exports.utils.zeros(endogenous[0].length);
+      weights = exports.GLM.utils.zeros(endogenous[0].length);
 
   while (!converged) {
     var currentFeatureId = iteration % n_features,
@@ -20,13 +20,13 @@ exports.optimization.CoordinateDescentPenalizedWeightedLeastSquares = function (
     weights[currentFeatureId] = gradient;
 
     iteration += 1;
-    converged = exports.utils.checkConvergence(weights, oldWeights, iteration, maxIterations);
+    converged = exports.GLM.utils.checkConvergence(weights, oldWeights, iteration, maxIterations);
   }
   return weights;
 };
 */
 
-exports.optimization.IRLS = function (endogenous,
+exports.GLM.optimization.IRLS = function (endogenous,
                                       exogenous,
                                       family) {
   var converged = false,
@@ -36,46 +36,48 @@ exports.optimization.IRLS = function (endogenous,
       eta = family.predict(mu),
       deviance = family.deviance(endogenous, mu),
       wlsResults = null,
-      dataWeights = exports.utils.makeArray(endogenous.length, 1);
+      dataWeights = exports.GLM.utils.makeArray(endogenous.length, 1);
 
   while (!converged) {
     var weights = numeric.mul(dataWeights, family.weights(mu));
     oldDeviance = deviance;
     var ddot = 0.0,
         muprime = family.link.derivative(mu);
-    var wlsEndogenous = exports.utils.map(eta, function(x, i) { return x + muprime[i] * (endogenous[i] - mu[i]); });
-    wlsResults = exports.optimization.linearSolve(wlsEndogenous, exogenous, weights);
+    var wlsEndogenous = exports.GLM.utils.map(eta, function(x, i) { return x + muprime[i] * (endogenous[i] - mu[i]); });
+    wlsResults = exports.GLM.optimization.linearSolve(wlsEndogenous, exogenous, weights);
     eta = numeric.dot(exogenous, wlsResults);
     mu = family.fitted(eta);
     deviance = family.deviance(endogenous, mu);
-    converged = exports.utils.checkConvergence(deviance, oldDeviance, iterations, maxIterations);
+    converged = exports.GLM.utils.checkConvergence(deviance, oldDeviance, iterations, maxIterations);
     iterations += 1;
   }
   return wlsResults;
 };
 
-exports.optimization.linearSolve = function (A, b, weights) {
-    function whiten(X, weights) {
-      if (X[0].hasOwnProperty('length')) {
-        return exports.utils.map(weights, function (w, i) { return exports.utils.map(X[i], function(z) { return Math.sqrt(w) * z; }); } );
-      } else {
-        return exports.utils.map(weights, function (w, i) { return Math.sqrt(w) * X[i]; });
-      }
+exports.GLM.optimization.linearSolve = function (A, b, weights) {
+  // linear solver using Moore-Penrose pseudoinverse SVD method
+  function whiten(X, weights) {
+    if (X[0].hasOwnProperty('length')) {
+      // 2d matrix
+      return exports.GLM.utils.map(weights, function (w, i) { return exports.GLM.utils.map(X[i], function(z) { return Math.sqrt(w) * z; }); } );
+    } else {
+      return exports.GLM.utils.map(weights, function (w, i) { return Math.sqrt(w) * X[i]; });
     }
-
-    A = whiten(A, weights);
-    b = whiten(b, weights);
-    /* solve Ax=b for x using svd pseudoinverse */
-    function project_and_invert(V) {
-      var id_matrix = numeric.identity(V.length);
-      for (var i = 0; i < V.length; i++) { id_matrix[i][i] /= V[i]; } 
-      return id_matrix;
-    }   
-  var decomposition = numeric.svd(numeric.dot(numeric.transpose(b), b)),
-        U = decomposition.U,
-        S_inverse = project_and_invert(decomposition.S),
-        V = decomposition.V,
-        psuedoinv = numeric.dot(U, numeric.dot(S_inverse, numeric.inv(V))),
-        solution = numeric.dot(numeric.dot(psuedoinv, numeric.transpose(b)), A);
-    return solution;
   }
+
+  A = whiten(A, weights);
+  b = whiten(b, weights);
+  /* solve Ax=b for x using svd pseudoinverse */
+  function project_and_invert(V) {
+    var id_matrix = numeric.identity(V.length);
+    for (var i = 0; i < V.length; i++) { id_matrix[i][i] /= V[i]; } 
+    return id_matrix;
+  }   
+  var decomposition = numeric.svd(numeric.dot(numeric.transpose(b), b)),
+      U = decomposition.U,
+      S_inverse = project_and_invert(decomposition.S),
+      V = decomposition.V,
+      psuedoinv = numeric.dot(U, numeric.dot(S_inverse, numeric.inv(V))),
+      solution = numeric.dot(numeric.dot(psuedoinv, numeric.transpose(b)), A);
+  return solution;
+}
