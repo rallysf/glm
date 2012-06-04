@@ -73,11 +73,16 @@ exports.GLM.optimization.linearSolve = function (A, b, weights) {
     for (var i = 0; i < V.length; i++) { id_matrix[i][i] /= V[i]; } 
     return id_matrix;
   }   
-  var decomposition = numeric.svd(numeric.dot(numeric.transpose(b), b)),
-      U = decomposition.U,
-      S_inverse = project_and_invert(decomposition.S),
-      V = decomposition.V,
-      psuedoinv = numeric.dot(U, numeric.dot(S_inverse, numeric.inv(V))),
-      solution = numeric.dot(numeric.dot(psuedoinv, numeric.transpose(b)), A);
+  var decomposition = exports.GLM.thinsvd(numeric.dot(numeric.transpose(b), b)),
+      U = decomposition[0],
+      S_inverse = project_and_invert(decomposition[1]),
+      V = decomposition[2],
+      psuedoinv = exports.GLM.utils.dot(U, exports.GLM.utils.dot(S_inverse, numeric.inv(V))),
+      solution = numeric.dot(numeric.dot(psuedoinv, exports.GLM.utils.transpose(b)), A);
+  console.log('---------');
+  console.log(psuedoinv);
+  console.log(exports.GLM.utils.transpose(b));
+      console.log(numeric.dot(psuedoinv, exports.GLM.utils.transpose(b)));
+      console.log(exports.GLM.utils.dot(psuedoinv, exports.GLM.utils.transpose(b)));
   return solution;
 }

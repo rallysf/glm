@@ -55,3 +55,38 @@ exports.GLM.utils.add_constant = function (ary) {
   exports.GLM.utils.map(ary, function (x) { x.push(1);});
   return ary;
 };
+
+exports.GLM.utils.dot = function (a, b) {
+  var r, aIsM = a[0].hasOwnProperty("length"), bIsM = b[0].hasOwnProperty("length");
+  if (aIsM & bIsM) { // both matrices
+    r = [];
+    for (var i = 0; i < a.length; i++) {
+      r[r.length] = exports.GLM.utils.zeros(b[0].length);
+      for (var j = 0; j < b[0].length; j++) {
+        for (var k = 0; k < a.length; k++) {
+          r[i][j] += a[i][k] * b[k][j];
+        }
+      }
+    }
+  } else {
+    r = 0.0;
+    for (var i = 0; i < a.length; i++) {
+      r += a[i] * b[i];
+    }
+  }
+  return r;
+};
+
+exports.GLM.utils.transpose = function (A) {
+  console.log(A.length);
+  var r = [];
+  for (var i = 0; i < A[0].length; i++) {
+    r[i] = exports.GLM.utils.zeros(A.length);
+  }
+  for (var i = 0; i < A.length; i++) {
+    for (var j = 0; j < A[0].length; j++) {
+      r[j][i] = A[i][j];
+    }
+  }
+  return r;
+};

@@ -1,7 +1,7 @@
 var numeric = (typeof exports === "undefined")?(function numeric() {}):(exports);
 if(typeof global !== "undefined") { global.numeric = numeric; }
 
-numeric.version = "1.0.3";
+numeric.version = "1.0.2";
 
 // 1. Utility functions
 numeric.bench = function bench (f,interval) {
@@ -41,9 +41,9 @@ numeric.largeArray = 50;
 numeric.prettyPrint = function prettyPrint(x) {
     function fmtnum(x) {
         if(x === 0) { return '0'; }
-        if(NisNaN(x)) { return 'NaN'; }
+        if(numeric.NisNaN(x)) { return 'NaN'; }
         if(x<0) { return '-'+fmtnum(-x); }
-        if(NisFinite(x)) {
+        if(numeric.NisFinite(x)) {
             var scale = Math.floor(Math.log(x) / Math.log(10));
             var normalized = x / Math.pow(10,scale);
             var basic = normalized.toPrecision(numeric.precision);
@@ -639,10 +639,10 @@ numeric.ops1 = {
         numeric[o+'V'] = numeric.pointwise(['x[i]'],'ret[i] = fun(x[i]);','var fun = Math.'+o+';');
         numeric[o] = numeric.Function('x','if(typeof x === "object") return numeric.'+o+'V(x);\nreturn Math.'+o+'(x);');
     }
-    numeric.isNaNV = numeric.pointwise(['x[i]'],'ret[i] = isNaN(x[i]);');
-    numeric.NisNaN = function NisNaN(x) { if(typeof x === "object") return numeric.isNaNV(x); return isNaN(x); }
-    numeric.isFiniteV = numeric.pointwise(['x[i]'],'ret[i] = isFinite(x[i]);');
-    numeric.NisFinite = function NisNaN(x) { if(typeof x === "object") return numeric.isFiniteV(x); return NisFinite(x); }
+    numeric.NisNaNV = numeric.pointwise(['x[i]'],'ret[i] = isNaN(x[i]);');
+    numeric.NisNaN = function (x) { if(typeof x === "object") return isNaNV(x); return isNaN(x); }
+    numeric.NisFiniteV = numeric.pointwise(['x[i]'],'ret[i] = numeric.NisFinite(x[i]);');
+    numeric.NisFinite = function (x) { if(typeof x === "object") return numeric.NisFiniteV(x); return numeric.NisFinite(x); }
     for(i in numeric.opseq) {
         if(numeric.opseq.hasOwnProperty(i)) {
             numeric[i+'S'] = numeric.Function('x','y',
@@ -2224,7 +2224,7 @@ numeric.uncmin = function uncmin(f,x0,tol,gradient,maxit,callback) {
     tol = max(tol,numeric.epsilon);
     var step,g0,g1,H1 = numeric.identity(n);
     var dot = numeric.dot, inv = numeric.inv, sub = numeric.sub, add = numeric.add, ten = numeric.tensor, div = numeric.div, mul = numeric.mul;
-    var all = numeric.all, isfinite = numeric.isFinite, neg = numeric.neg;
+    var all = numeric.all, isfinite = numeric.NisFinite, neg = numeric.neg;
     var it=0,i,s,x1,y,Hy,Hs,ys,i0,t,nstep,t1,t2;
     var msg = "";
     g0 = gradient(x0);

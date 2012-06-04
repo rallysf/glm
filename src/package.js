@@ -3,7 +3,7 @@ var util = require("util"),
 
 util.puts(JSON.stringify({
   "name": "GLM",
-  "version": glm.version,
+  "version": glm.GLM.version,
   "description": "Generalized Linear Models",
   "keywords": ["glm", "statistics", "models"],
   "homepage": "https://rally.github.com/glm.js",
