@@ -79,10 +79,5 @@ exports.GLM.optimization.linearSolve = function (A, b, weights) {
       V = decomposition[2],
       psuedoinv = exports.GLM.utils.dot(U, exports.GLM.utils.dot(S_inverse, numeric.inv(V))),
       solution = numeric.dot(numeric.dot(psuedoinv, exports.GLM.utils.transpose(b)), A);
-  console.log('---------');
-  console.log(psuedoinv);
-  console.log(exports.GLM.utils.transpose(b));
-      console.log(numeric.dot(psuedoinv, exports.GLM.utils.transpose(b)));
-      console.log(exports.GLM.utils.dot(psuedoinv, exports.GLM.utils.transpose(b)));
   return solution;
 }

@@ -4193,12 +4193,17 @@ exports.GLM.utils.map = function (ary, fn) {
   return out;
 };
 
-exports.GLM.utils.atleast_2d = function (ary) {
+exports.GLM.utils.isArray = function (potentialArray) {
+  return potentialArray.constructor == Array;
+};
+
+exports.GLM.utils.atleast_2d = function (A) {
   // will make sure JS array is at least 2 dimensional
-  if (ary[0].constructor == Array) {
-    return ary;
+  // assumption is that 1-d vectors are column vectors
+  if (exports.GLM.utils.isArray(A[0])) {
+    return A;
   } else {
-    return exports.GLM.utils.map(ary, function (x) { return [x]; });
+    return [A];
   }
 };
 
@@ -4208,7 +4213,10 @@ exports.GLM.utils.add_constant = function (ary) {
 };
 
 exports.GLM.utils.dot = function (a, b) {
-  var r, aIsM = a[0].hasOwnProperty("length"), bIsM = b[0].hasOwnProperty("length");
+  var r, aIsM = exports.GLM.utils.isArray(a[0]), bIsM = exports.GLM.utils.isArray(b[0]);
+  console.log(" DOT ");
+  console.log("a ", a);
+  console.log("b ", b);
   if (aIsM & bIsM) { // both matrices
     r = [];
     for (var i = 0; i < a.length; i++) {
@@ -4219,18 +4227,21 @@ exports.GLM.utils.dot = function (a, b) {
         }
       }
     }
+    return r;
+  } else if (aIsM | bIsM) {
+    return exports.GLM.utils.dot(exports.GLM.utils.atleast_2d(a), exports.GLM.utils.atleast_2d(b));
   } else {
     r = 0.0;
     for (var i = 0; i < a.length; i++) {
       r += a[i] * b[i];
     }
+    return r;
   }
-  return r;
 };
 
 exports.GLM.utils.transpose = function (A) {
-  console.log(A.length);
   var r = [];
+  A = exports.GLM.utils.atleast_2d(A);
   for (var i = 0; i < A[0].length; i++) {
     r[i] = exports.GLM.utils.zeros(A.length);
   }
@@ -4434,12 +4445,7 @@ exports.GLM.optimization.linearSolve = function (A, b, weights) {
       S_inverse = project_and_invert(decomposition[1]),
       V = decomposition[2],
       psuedoinv = exports.GLM.utils.dot(U, exports.GLM.utils.dot(S_inverse, numeric.inv(V))),
-      solution = exports.GLM.utils.dot(numeric.dot(psuedoinv, exports.GLM.utils.transpose(b)), A);
-  console.log('---------');
-  console.log(psuedoinv);
-  console.log(exports.GLM.utils.transpose(b));
-      console.log(numeric.dot(psuedoinv, exports.GLM.utils.transpose(b)));
-      console.log(exports.GLM.utils.dot(psuedoinv, exports.GLM.utils.transpose(b)));
+      solution = numeric.dot(numeric.dot(psuedoinv, exports.GLM.utils.transpose(b)), A);
   return solution;
 }
 })(this);
