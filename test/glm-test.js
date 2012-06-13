@@ -9,7 +9,7 @@ suite.addBatch({
     topic: function () { return glm.GLM; },
     "should train a linear model": function (GLM) {
       var glm_model = GLM(GLM.families.Gaussian());
-      glm_model.fit([1, 2], [1, 2]);
+      glm_model.fit([1, 2], [[1], [2]]);
       assert.ok(glm.GLM.testing.fuzzyArrayEqual(glm_model.predict([3, 4]), [3, 4]));
     },
     "should train a linear model with gaussian noise": function (GLM) {

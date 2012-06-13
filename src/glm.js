@@ -11,17 +11,22 @@ exports.GLM = function (family, regularization) {
   model.family = family;
   model.weights = null; 
 
+  function constantize (exogenous) {
+    if (!exports.GLM.utils.isArray(exogenous[0])) { 
+      exogenous = exports.GLM.utils.transpose(exports.GLM.utils.atleast_2d(exogenous));
+    }
+    return exports.GLM.utils.add_constant(exogenous);
+  }
+
   model.fit = function (endogenous, exogenous) {
-    exogenous = exports.GLM.utils.atleast_2d(exogenous);
-    exogenous = exports.GLM.utils.add_constant(exogenous);
+    exogenous = constantize(exogenous);
     model.weights = exports.GLM.optimization.IRLS(endogenous, exogenous, model.family);
     return this;
   };
 
   model.predict = function (exogenous) {
-    exogenous = exports.GLM.utils.atleast_2d(exogenous);
-    exogenous = exports.GLM.utils.add_constant(exogenous);
-    var linear = numeric.dot(exogenous, model.weights);
+    exogenous = constantize(exogenous)
+    var linear = exports.GLM.utils.dot(exogenous, model.weights);
     return model.family.fitted(linear);
   };
 

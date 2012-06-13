@@ -27,13 +27,8 @@ suite.addBatch({
   "IRLS": {
     topic: function () { return glm.GLM.optimization.linearSolve; },
     "should properly converge": function (wlssolver) {
-      var s = wlssolver([1,3,4,5,2,3,4], glm.GLM.utils.add_constant(glm.GLM.utils.atleast_2d([1,2,3,4,5,6,7])), [1,2,3,4,5,6,7]);
-      function approxEqual(a1, a2) {
-        for (var i = 0; i < a1.length; i++) {
-          assert.ok(Math.abs(a1[i] - a2[i]) < 0.0001);
-        }
-      }
-      approxEqual(s, [ 0.0952381 ,  2.91666667]);
+      var s = wlssolver([1,3,4,5,2,3,4], glm.GLM.utils.add_constant(glm.GLM.utils.transpose(glm.GLM.utils.atleast_2d([1,2,3,4,5,6,7]))), [1,2,3,4,5,6,7]);
+      assert.ok(glm.GLM.testing.fuzzyArrayEqual(s, [ 0.0952381 ,  2.91666667]));
     }
   }
 });
