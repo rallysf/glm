@@ -21,7 +21,7 @@ Example usage in Node
 var glm = require('glm');
 var glm_model = GLM(GLM.families.Gaussian());
 glm_model.fit([1, 2], [[1], [2]]);
-console.log(glm_model.predict([3, 4]), [3, 4]));
+console.log(glm_model.predict([3, 4])); // should predict 3 and 4
 ```
 
 Compiling
