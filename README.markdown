@@ -17,7 +17,7 @@ type "python -m SimpleHTTPServer" in the root of this repo and navigate your bro
 
 Example usage in Node
 ---------------------
-```node
+```javascript
 var glm = require('glm');
 var glm_model = GLM(GLM.families.Gaussian());
 glm_model.fit([1, 2], [[1], [2]]);
