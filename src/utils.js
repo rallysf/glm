@@ -183,3 +183,11 @@ exports.GLM.utils.inverse = function (matrix) {
   }
   return inverse;
 };
+
+exports.GLM.utils.linspace = function (lower, upper, number_of_steps) {
+  var linear_array = [], step_size = (upper + 0.0 - lower) / number_of_steps;
+  for (var i = 0; i < number_of_steps; i++) {
+    linear_array.push(lower + i * step_size);
+  }
+  return linear_array;
+}

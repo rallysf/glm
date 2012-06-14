@@ -1,5 +1,12 @@
 exports.GLM.links = exports.GLM.links || {};
 
+var linkBuilder = function (func, inv, deriv) {
+  var f = function (P) { return exports.GLM.utils.map(P, func); }
+  f.inverse = function (P) { return exports.GLM.utils.map(P, inv); }
+  f.derivative = function (P) { return exports.GLM.utils.map(P, deriv); }
+  return f;
+};
+
 exports.GLM.links.Logit = function () {
   var f = function (P) { return exports.GLM.utils.map(P, function (p) { return Math.log(p / (1.0 - p)); }) };
   f.inverse = function (P) { return exports.GLM.utils.map(P, function (p) { var t = Math.exp(p); return t / (1.0 + t); }); };

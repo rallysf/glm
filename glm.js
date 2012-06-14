@@ -749,6 +749,14 @@ exports.GLM.utils.inverse = function (matrix) {
   }
   return inverse;
 };
+
+exports.GLM.utils.linspace = function (lower, upper, number_of_steps) {
+  var linear_array = [], step_size = (upper + 0.0 - lower) / number_of_steps;
+  for (var i = 0; i < number_of_steps; i++) {
+    linear_array.push(lower + i * step_size);
+  }
+  return linear_array;
+}
 exports.GLM.families = exports.GLM.families || {};
 
 exports.GLM.families.Binomial = function (link) {
@@ -825,6 +833,13 @@ exports.GLM.families.Gaussian = function (link) {
 };
 exports.GLM.links = exports.GLM.links || {};
 
+var linkBuilder = function (func, inv, deriv) {
+  var f = function (P) { return exports.GLM.utils.map(P, func); }
+  f.inverse = function (P) { return exports.GLM.utils.map(P, inv); }
+  f.derivative = function (P) { return exports.GLM.utils.map(P, deriv); }
+  return f;
+};
+
 exports.GLM.links.Logit = function () {
   var f = function (P) { return exports.GLM.utils.map(P, function (p) { return Math.log(p / (1.0 - p)); }) };
   f.inverse = function (P) { return exports.GLM.utils.map(P, function (p) { var t = Math.exp(p); return t / (1.0 + t); }); };
@@ -864,7 +879,7 @@ exports.GLM.links.NegativeBinomial = function (alpha) {
 };
 exports.GLM.optimization = exports.optimization || {};
 
-/* TODO: this is broken and incomplete
+/* TODO: this is incomplete
 exports.optimization.CoordinateDescentPenalizedWeightedLeastSquares = function (endogenous, exogenous, gradientFunction, regularizationParameter, elasticnetParameter, maxIterations) {
   // initialize defaults
   if (!regularizationParameter) { regularizationParameter = 0.01; }
@@ -878,7 +893,7 @@ exports.optimization.CoordinateDescentPenalizedWeightedLeastSquares = function (
 
   while (!converged) {
     var currentFeatureId = iteration % n_features,
-        oldWeights = numeric.clone(weights),
+        oldWeights = clone(weights),
         gradient = gradientFunction(endogenous, exogenous, weights, currentFeatureId, regularizationParameter, elasticnetParameter); // compute gradient along given axis
 
     weights[currentFeatureId] = gradient;

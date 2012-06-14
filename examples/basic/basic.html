@@ -2,16 +2,21 @@
   <head>
     <link type="text/css" rel="stylesheet" href="basic.css">
     <script src="d3.v2.js"></script>
-    <script src="../../src/numeric.js"></script>
     <script src="../../glm.js"></script>
     <script src="jquery.min.js"></script>
   </head>
   <body>
     <h1>Horsepower v. MPG for Cars</h1>
     <p>The chart shows a logistic curve fit between the horsepower and miles per gallon for individal cars in the <a href="http://stat.ethz.ch/R-manual/R-patched/library/datasets/html/mtcars.html">Motor Trend Car Road Test dataset</a>. Instead of using the raw horsepower value from the dataset, we convert it to a binary value. If it is below a certain cutoff point the assigned value is 1, otherwise it's assigned 0. Use the slider to adjust this cutoff value and watch how the logistic curve changes.</p>
-    <div id="chart-container"></div>
     <p>Use the slider to choose a horsepower to divide the dataset.</p>
-    <p>HP: <input type="range"  min="60" max="340" id="binSplitter" value="125" /> <span id="mpgValue"> </p>
+    <p>HP: <input type="range"  min="60" max="340" id="binSplitter" value="125" /> <span id="mpgValue"> </span> </p>
+    <div id="chart-container"></div>
+    <div id="information-container">
+      <h1> gt </h1>
+      <ul id="greater-than-threshold-list"> </ul>
+      <h1> lt </h1>
+      <ul id="less-than-threshold-list"> </ul>
+    </div>
   </body>
     <script>
       // extracted from motortrends cars dataset
@@ -20,7 +25,7 @@
       function binarizer(data) {
         // get split value from DOM
         var mid = parseInt(document.getElementById('binSplitter').value);
-        return GLM.utils.map(data, function (x) { return (x > mid) ? 0 : 1; });
+        return GLM.utils.map(data, function (x) { return (x > mid) ? 1 : 0; });
       }
 
       function makeArray(data) {
@@ -107,13 +112,23 @@
           .attr("class", "line");
 
       function createPathAndMoveBubbles() {
-        var glm = GLM(GLM.families.Binomial()).fit(binarizer(cars.hp), cars.mpg);
-            glm_data = GLM.utils.map(numeric.linspace(lowerBound, upperBound, 200), function (x) {
+        var binaryHpValues = binarizer(cars.hp),
+            glm = GLM(GLM.families.Binomial()).fit(binaryHpValues, cars.mpg),
+            glm_data = GLM.utils.map(GLM.utils.linspace(lowerBound, upperBound, 200), function (x) {
               return {x: x, y: glm.predict([x])[0]};
             });
         circles.data(makeArray(cars)).transition().call(circlizer);
-        path.attr("d", line(glm_data) );
+        path.attr("d", line(glm_data));
         $("#mpgValue").html($('#binSplitter').val());
+        $("#greater-than-threshold-list").html("");
+        $("#less-than-threshold-list").html("");
+        GLM.utils.map(binaryHpValues, function (binaryhp, i) {
+          if (binaryhp == 1) {
+            $("#greater-than-threshold-list").append("<li>" + cars.names[i] + "</li>");
+          } else {
+            $("#less-than-threshold-list").append("<li>" + cars.names[i] + "</li>");
+          }
+        });
       }
       createPathAndMoveBubbles();
       $('#binSplitter').change(createPathAndMoveBubbles);
