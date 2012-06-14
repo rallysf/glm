@@ -11,18 +11,18 @@ Applications
  * Data processing
  * Teaching / education linear models
 
-
 Example usage in browser
-========================
+------------------------
 type "python -m SimpleHTTPServer" in the root of this repo and navigate your browser to "http://localhost:8000"
 
-
 Example usage in Node
-=====================
-> glm = require('glm');
-> var glm_model = GLM(GLM.families.Gaussian());
-> glm_model.fit([1, 2], [[1], [2]]);
-> console.log(glm_model.predict([3, 4]), [3, 4]));
+---------------------
+```node
+var glm = require('glm');
+var glm_model = GLM(GLM.families.Gaussian());
+glm_model.fit([1, 2], [[1], [2]]);
+console.log(glm_model.predict([3, 4]), [3, 4]));
+```
 
 Compiling
 =========
