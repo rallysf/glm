@@ -7,14 +7,14 @@
   </head>
   <body>
     <h1>Horsepower v. MPG for Cars</h1>
-    <p>The chart shows a logistic curve fit between the horsepower and miles per gallon for individal cars in the <a href="http://stat.ethz.ch/R-manual/R-patched/library/datasets/html/mtcars.html">Motor Trend Car Road Test dataset</a>. Instead of using the raw horsepower value from the dataset, we convert it to a binary value. If it is below a certain cutoff point the assigned value is 1, otherwise it's assigned 0. Use the slider to adjust this cutoff value and watch how the logistic curve changes.</p>
+    <p>The chart shows a logistic curve fit between the horsepower and miles per gallon for individal cars in the <a href="http://stat.ethz.ch/R-manual/R-patched/library/datasets/html/mtcars.html">Motor Trend Car Road Test dataset</a>. Instead of using the raw horsepower value from the dataset, we convert it to a binary value. If it is below a certain cutoff point the assigned value is 0, otherwise 1. Use the slider to adjust this cutoff value and watch how the logistic curve changes.</p>
     <p>Use the slider to choose a horsepower to divide the dataset.</p>
     <p>HP: <input type="range"  min="60" max="340" id="binSplitter" value="125" /> <span id="mpgValue"> </span> </p>
     <div id="chart-container"></div>
     <div id="information-container">
-      <h1> gt </h1>
+      <h1> Cars with HP greater than threshold </h1>
       <ul id="greater-than-threshold-list"> </ul>
-      <h1> lt </h1>
+      <h1> Cars with HP less than threshold </h1>
       <ul id="less-than-threshold-list"> </ul>
     </div>
   </body>

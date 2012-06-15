@@ -1,9 +1,9 @@
-GLM.js
+glm.js
 ======
 
 Responsive [generalized linear models](http://en.wikipedia.org/wiki/Generalized_linear_model) in pure Javascript. This tool is useful for responsive feedback when doing data cleansing or adjusting parameters that actually change the data.
 
-This is essentially a port of Wes Mckinney's python GLM implementation that uses the iteratively reweighted least squares algorithm in the excellent [statsmodels](http://statsmodels.sourceforge.net/) library.
+This is essentially a port of a python GLM implementation that uses the iteratively reweighted least squares algorithm in the excellent [statsmodels](http://statsmodels.sourceforge.net/) library.
 
 Applications
 ============
@@ -13,7 +13,7 @@ Applications
 
 Example usage in browser
 ------------------------
-type "python -m SimpleHTTPServer" in the root of this repo and navigate your browser to "http://localhost:8000"
+Run "python -m SimpleHTTPServer" in the root of this repo and navigate your browser to "http://localhost:8000/examples/"
 
 Example usage in Node
 ---------------------
