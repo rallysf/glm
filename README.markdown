@@ -18,10 +18,12 @@ Run "python -m SimpleHTTPServer" in the root of this repo and navigate your brow
 Example usage in Node
 ---------------------
 ```javascript
-var glm = require('glm');
-var glm_model = GLM(GLM.families.Gaussian());
-glm_model.fit([1, 2], [[1], [2]]);
-console.log(glm_model.predict([3, 4])); // should predict 3 and 4
+$ npm install glm
+$ node
+> var glm = require('glm');
+> var glm_model = GLM(GLM.families.Gaussian());
+> glm_model.fit([1, 2], [[1], [2]]);
+> console.log(glm_model.predict([3, 4])); // should predict 3 and 4
 ```
 
 Compiling
