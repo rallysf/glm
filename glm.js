@@ -533,7 +533,7 @@ exports.GLM.thinsvd = function (A) {
         
     */
 }
-exports.GLM.version = "0.0.1";
+exports.GLM.version = "1.0.0";
 exports.GLM.testing = exports.GLM.testing || {};
 
 exports.GLM.testing.arrayEqual = function (lhs, rhs) {

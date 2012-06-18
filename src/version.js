@@ -1,1 +1,1 @@
-exports.GLM.version = "0.0.1";
+exports.GLM.version = "1.0.0";

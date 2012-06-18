@@ -1,6 +1,6 @@
 {
   "name": "glm",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Generalized Linear Models",
   "keywords": [
     "glm",
@@ -8,7 +8,7 @@
     "model",
     "machine-learning"
   ],
-  "homepage": "https://github.com/rallysf/glm.js",
+  "homepage": "https://github.com/rallysf/glm",
   "main": "./glm.js",
   "repository": {
     "type": "git",
