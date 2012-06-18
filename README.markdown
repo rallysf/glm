@@ -1,9 +1,9 @@
-glm.js
-======
+glm
+===
 
 Responsive [generalized linear models](http://en.wikipedia.org/wiki/Generalized_linear_model) in pure Javascript. This tool is useful for responsive feedback when doing data cleansing or adjusting parameters that actually change the data.
 
-The purpose of this library is to have one self contained generalized linear model library. Other javascript libraries can be used for to create additional models. See the execellent [brain.js](https://github.com/harthur/brain) library for neural networks.
+The purpose of this library is to have one self contained generalized linear model library. Other javascript libraries can be used for to create additional models. See the execellent [brain](https://github.com/harthur/brain) library for neural networks and [classifier.js](https://github.com/harthur/classifier) library for Bayesian classifiers.
 
 ```javascript
 var glm_model = glm.GLM(GLM.families.Gaussian());
@@ -23,6 +23,8 @@ Applications
 Future Plans
 ------------
 We will soon have support for regularization and Probit regression. After this, we plan on optimizing the runtime performance of the system. It would be neat to have support for MAP or fully Bayesian GLMs, but we currently don't see any reason to work on this functionality.
+
+API changes will probably be made to make GLM.js more in line with the other popular Javascript Machine Learning libraries.
 
 Usage & Architecture
 ====================
