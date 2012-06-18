@@ -5,6 +5,13 @@ Responsive [generalized linear models](http://en.wikipedia.org/wiki/Generalized_
 
 The purpose of this library is to have one self contained generalized linear model library. Other javascript libraries can be used for to create additional models. See the execellent [brain.js](https://github.com/harthur/brain) library for neural networks.
 
+```javascript
+var glm_model = glm.GLM(GLM.families.Gaussian());
+var feature_vectors = [[1], [2]];
+var target_values = [1, 2];
+glm_model.fit(target_values, feature_vectors);
+```
+
 Applications
 ------------
  * Data visualizations
@@ -23,21 +30,22 @@ There is one main function called GLM which expects a distribution to be passed 
 
 This is essentially a port of a python GLM implementation that uses the iteratively reweighted least squares algorithm in the excellent [statsmodels](http://statsmodels.sourceforge.net/) library.
 
-Example usage in browser
-------------------------
-Run "python -m SimpleHTTPServer" in the root of this repo and navigate your browser to "http://localhost:8000/examples/"
-
-Example usage in Node
+Usage in Node
 ---------------------
-```javascript
-var glm = require('glm');
-var glm_model = GLM(); // defaults to GLM.families.Gaussian()
-var feature_vectors = [[1], [2]];
-var target_values = [1, 2];
-glm_model.fit(target_values, feature_vectors);
-console.log(glm_model.predict([3, 4])); // should predict 3 and 4
 ```
+$ npm install node
+$ node
+> var glm = require('glm');
+```
+
+Usage in browser
+-----------------
+Just include 'glm.js' as a script in your HTML code.
+
+Examples
+--------
+Run `python -m SimpleHTTPServer` in the root of this repo and navigate your browser to `http://localhost:8000/examples/`
 
 Compiling
 =========
-To compile, first install the dependencies with npm and then run make. To test, run "make test".
+To compile, first install the dependencies with npm and then run make. To test, run `make test`.
