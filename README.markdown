@@ -1,15 +1,16 @@
 glm
 ===
 
-Responsive [generalized linear models](http://en.wikipedia.org/wiki/Generalized_linear_model) in pure Javascript. This tool is useful for responsive feedback when doing data cleansing or adjusting parameters that actually change the data.
+Responsive [generalized linear models](http://en.wikipedia.org/wiki/Generalized_linear_model) in pure Javascript. This tool can be used for fitting linear models in browser or server side with node.js. 
 
 The purpose of this library is to have one self contained generalized linear model library. Other javascript libraries can be used for to create additional models. See the execellent [brain](https://github.com/harthur/brain) library for neural networks and [classifier.js](https://github.com/harthur/classifier) library for Bayesian classifiers.
 
 ```javascript
-var glm_model = glm.GLM(GLM.families.Gaussian());
+var glm_model = glm.GLM(glm.GLM.families.Gaussian());
 var feature_vectors = [[1], [2]];
-var target_values = [1, 2];
+var target_values = [3, 4];
 glm_model.fit(target_values, feature_vectors);
+console.log(glm_model.predict([10, 100]));  // == 12, 102
 ```
 
 Applications
@@ -32,15 +33,15 @@ There is one main function called GLM which expects a distribution to be passed 
 
 This is essentially a port of a python GLM implementation that uses the iteratively reweighted least squares algorithm in the excellent [statsmodels](http://statsmodels.sourceforge.net/) library.
 
-Usage in Node
+In Node
 ---------------------
 ```
-$ npm install node
+$ npm install glm
 $ node
 > var glm = require('glm');
 ```
 
-Usage in browser
+In browser
 -----------------
 Just include 'glm.js' as a script in your HTML code.
 
