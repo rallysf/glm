@@ -6,7 +6,7 @@ util.puts(JSON.stringify({
   "version": glm.GLM.version,
   "description": "Generalized Linear Models",
   "keywords": ["glm", "statistics", "model", "machine-learning"],
-  "homepage": "https://github.com/rallysf/glm.js",
+  "homepage": "https://github.com/rallysf/glm",
   "main": "./glm.js",
   "repository": {
     "type": "git",
