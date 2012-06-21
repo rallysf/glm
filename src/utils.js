@@ -191,3 +191,21 @@ exports.GLM.utils.linspace = function (lower, upper, number_of_steps) {
   }
   return linear_array;
 }
+
+exports.GLM.utils.sum = function (array) {
+  var s = array[0];
+  for (var i = 1; i < array.length; i++) {
+    s += array[i];
+  }
+  return s;
+};
+
+exports.GLM.utils.sign = function (f) {
+  if (f == 0.0) {
+    return 0;
+  } else if (f > 0) {
+    return 1.0;
+  } else {
+    return -1.0;
+  }
+};

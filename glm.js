@@ -22,6 +22,7 @@ exports.GLM = function (family, regularization) {
   model.fit = function (endogenous, exogenous) {
     exogenous = constantize(exogenous);
     model.weights = exports.GLM.optimization.IRLS(endogenous, exogenous, model.family);
+    //model.weights = exports.GLM.optimization.CoordinateDescent(endogenous, exogenous);
     return this;
   };
 
@@ -547,6 +548,9 @@ exports.GLM.testing.arrayEqual = function (lhs, rhs) {
 };
 
 exports.GLM.testing.fuzzyArrayEqual = function (lhs, rhs, tolerance) {
+  function xisNaN(x) {
+    return x.toString() == 'NaN';
+  }
   if (!tolerance) { tolerance = 1e-4; }
   if (!exports.GLM.testing.arrayEqual(exports.GLM.utils.shape(lhs), exports.GLM.utils.shape(rhs))) { return false; }
   if (exports.GLM.utils.isArray(lhs[0])) {
@@ -557,6 +561,9 @@ exports.GLM.testing.fuzzyArrayEqual = function (lhs, rhs, tolerance) {
     }
   } else {
     for (var i = 0; i < lhs.length; i++) {
+      if (xisNaN(lhs[i]) || xisNaN(rhs[i])) {
+        return false;
+      }
       if (Math.abs(lhs[i] - rhs[i]) > tolerance) {
         return false;
       }
@@ -757,6 +764,24 @@ exports.GLM.utils.linspace = function (lower, upper, number_of_steps) {
   }
   return linear_array;
 }
+
+exports.GLM.utils.sum = function (array) {
+  var s = array[0];
+  for (var i = 1; i < array.length; i++) {
+    s += array[i];
+  }
+  return s;
+};
+
+exports.GLM.utils.sign = function (f) {
+  if (f == 0.0) {
+    return 0;
+  } else if (f > 0) {
+    return 1.0;
+  } else {
+    return -1.0;
+  }
+};
 exports.GLM.families = exports.GLM.families || {};
 
 exports.GLM.families.Binomial = function (link) {
@@ -879,35 +904,63 @@ exports.GLM.links.NegativeBinomial = function (alpha) {
 };
 exports.GLM.optimization = exports.optimization || {};
 
-/* TODO: this is incomplete
-exports.optimization.CoordinateDescentPenalizedWeightedLeastSquares = function (endogenous, exogenous, gradientFunction, regularizationParameter, elasticnetParameter, maxIterations) {
+/* TODO: test this, support non-gaussian families */
+exports.GLM.optimization.CoordinateDescent = function (exogenous,
+                                                       endogenous,
+                                                       learning_rate,
+                                                       elastic_net_parameter,
+                                                       maxIterations) {
   // initialize defaults
-  if (!regularizationParameter) { regularizationParameter = 0.01; }
-  if (!elasticnetParameter) { elasticnetParameter = 0.5; } // defaults to half lasso, half ridge
+  /* TODO: find correct initial parameters */
+  if (!learning_rate) { learning_rate = 0.1; } // alpha
+  if (!elastic_net_parameter) { elastic_net_parameter = 0.9; } // rho
   if (!maxIterations) { maxIterations = 1000; }
+
+  var n_features = endogenous[0].length,
+      n_samples = endogenous.length;
+
+  var alpha = learning_rate * elastic_net_parameter * n_samples,
+      beta = learning_rate * (1.0 - elastic_net_parameter) * n_samples;
 
   var converged = false,
       iteration = 0,
-      n_features = endogenous[0].length;
-      weights = exports.GLM.utils.zeros(endogenous[0].length);
+      weights = exports.GLM.utils.zeros(n_features),
+      endogenousT = exports.GLM.utils.transpose(endogenous),
+      column_norms = exports.GLM.utils.map(endogenousT, function (x) {
+        return exports.GLM.utils.sum(exports.GLM.utils.map(x, function (xx) { return Math.pow(xx, 2); }));
+      }),
+      R = exports.GLM.utils.map(exports.GLM.utils.dot(endogenous, weights), function (v, i) { return exogenous[i] - v; }),
+      tmp, d_w_max, d_w_ii, w_max;
 
   while (!converged) {
-    var currentFeatureId = iteration % n_features,
-        oldWeights = clone(weights),
-        gradient = gradientFunction(endogenous, exogenous, weights, currentFeatureId, regularizationParameter, elasticnetParameter); // compute gradient along given axis
+    /* column iteration */
+    for (var feature_id = 0; feature_id < n_features; feature_id++) {
+      var w_ii = weights[feature_id];
+      if (w_ii != 0.0) {
+        exports.GLM.utils.map(endogenousT[feature_id], function (x_ii, i) {
+          R[i] += w_ii * x_ii;
+        });
+      }
+      tmp = exports.GLM.utils.sum(exports.GLM.utils.map(endogenousT[feature_id], function (v, i) { return v * R[i]; }));
 
-    weights[currentFeatureId] = gradient;
+      weights[feature_id] = exports.GLM.utils.sign(tmp) * Math.max(Math.abs(tmp) - alpha, 0) / (column_norms[feature_id] + beta);
 
+      exports.GLM.utils.map(endogenousT[feature_id], function (x_ii, i) {
+        R[i] -= weights[feature_id] * x_ii;
+      });
+      d_w_ii = Math.abs(weights[feature_id] - w_ii);
+      d_w_max = Math.max(d_w_ii, d_w_max);
+      w_max = Math.max(w_max, Math.abs(weights[feature_id]));
+    }
     iteration += 1;
-    converged = exports.GLM.utils.checkConvergence(weights, oldWeights, iteration, maxIterations);
+    converged = (w_max == 0.0 || d_w_max / w_max < 1e-5 || iteration == maxIterations);
   }
   return weights;
 };
-*/
 
 exports.GLM.optimization.IRLS = function (endogenous,
-                                      exogenous,
-                                      family) {
+                                          exogenous,
+                                          family) {
   var converged = false,
       iterations = 0,
       maxIterations = 5,

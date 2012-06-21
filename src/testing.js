@@ -11,6 +11,9 @@ exports.GLM.testing.arrayEqual = function (lhs, rhs) {
 };
 
 exports.GLM.testing.fuzzyArrayEqual = function (lhs, rhs, tolerance) {
+  function xisNaN(x) {
+    return x.toString() == 'NaN';
+  }
   if (!tolerance) { tolerance = 1e-4; }
   if (!exports.GLM.testing.arrayEqual(exports.GLM.utils.shape(lhs), exports.GLM.utils.shape(rhs))) { return false; }
   if (exports.GLM.utils.isArray(lhs[0])) {
@@ -21,6 +24,9 @@ exports.GLM.testing.fuzzyArrayEqual = function (lhs, rhs, tolerance) {
     }
   } else {
     for (var i = 0; i < lhs.length; i++) {
+      if (xisNaN(lhs[i]) || xisNaN(rhs[i])) {
+        return false;
+      }
       if (Math.abs(lhs[i] - rhs[i]) > tolerance) {
         return false;
       }

@@ -21,6 +21,7 @@ exports.GLM = function (family, regularization) {
   model.fit = function (endogenous, exogenous) {
     exogenous = constantize(exogenous);
     model.weights = exports.GLM.optimization.IRLS(endogenous, exogenous, model.family);
+    //model.weights = exports.GLM.optimization.CoordinateDescent(endogenous, exogenous);
     return this;
   };
 

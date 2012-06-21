@@ -21,6 +21,13 @@ suite.addBatch({
       var glm_model = GLM(GLM.families.Gaussian());
       glm_model.fit([1, 2, 3, 4], [[1.1, 2], [1, 3], [1, 4], [2, 5]]);
       assert.ok(glm.GLM.testing.fuzzyArrayEqual(glm_model.predict([[2, 3], [2, 4]]), [2, 3], 1e-4));
+    },
+    "should be able to refit a model": function (GLM) {
+      var glm_model = GLM(GLM.families.Gaussian());
+      glm_model.fit([1, 2, 3, 4], [[1.1, 2], [1, 3], [1, 4], [2, 5]]);
+      assert.ok(glm.GLM.testing.fuzzyArrayEqual(glm_model.predict([[2, 3], [2, 4]]), [2, 3], 1e-4));
+      glm_model.fit([1, 1.1, 0.95, 2], [1, 1.05, 1.05, 2]);
+      assert.ok(glm.GLM.testing.fuzzyArrayEqual(glm_model.predict([3, 4]), [3, 4], 0.05));
     }
   }
 });
@@ -32,10 +39,24 @@ suite.addBatch({
       var data = require('./data/mtcars.json');
       var glm_model = GLM(GLM.families.Binomial(GLM.links.Logit()));
       glm_model.fit(data.mtcars.hp_gt_125, data.mtcars.wt);
+      /* check the fitted parameters */
       assert.ok(glm.GLM.testing.fuzzyArrayEqual(glm_model.weights, data.R_binomial_glm_fit_parameters, 1e-2));
+      /* check predictions */
       assert.ok(glm.GLM.testing.fuzzyArrayEqual(glm_model.predict(data.mtcars.wt), data.R_binomial_glm_predict_values, 1e-3));
     },
   }
 });
+
+/*
+suite.addBatch({
+  "Linear regression model with l1 norm regularization": {
+    topic: function () { return glm.GLM; },
+    "should train an l1 norm regularized linear model": function (GLM) {
+      var glm_model = GLM(GLM.families.Gaussian(), 'l1');
+      glm_model.fit(target, features);
+    }
+  }
+});
+*/
 
 suite.export(module);
