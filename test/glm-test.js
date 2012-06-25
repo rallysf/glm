@@ -47,16 +47,40 @@ suite.addBatch({
   }
 });
 
-/*
 suite.addBatch({
-  "Linear regression model with l1 norm regularization": {
-    topic: function () { return glm.GLM; },
-    "should train an l1 norm regularized linear model": function (GLM) {
-      var glm_model = GLM(GLM.families.Gaussian(), 'l1');
-      glm_model.fit(target, features);
+  "Lasso": {
+    topic: function () { return glm.GLM.Lasso; },
+    "should train a basic l1 norm regularized linear model": function (Lasso) {
+      var random_data = [[1, 2], [2, 3], [3, 4]];
+      var target = [1, 2, 3];
+      var glm_model = Lasso({'learning_rate': 0.1});
+      glm_model.fit(target, random_data);
+      assert.ok(glm.GLM.testing.fuzzyArrayEqual(glm_model.predict(random_data), [1.15, 2.0, 2.85], 0.01));
+    },
+    "should train an l1 norm regularized linear model similar to R's glmnet": function (Lasso) {
+      var random_data = require('./data/rand_100_5.json').randn_100_5,
+          target = random_data.target,
+          features = random_data.data;
+      var lasso_model = Lasso({'learning_rate': 0.1});
+      lasso_model.fit(target, features);
+      console.log(lasso_model.weights);
+      assert.deepEqual(random_data.glmnet_lasso_linear_fit_parameters, lasso_model.weights);
+      //assert.deepEqual(random_data.glmnet_lasso_predict_parameters, lasso_model.weights);
+    },
+  }
+});
+
+suite.addBatch({
+  "ElasticNet": {
+    topic: function () { return glm.GLM.ElasticNet; },
+    "should train a basic elastic net regularized linear model": function (ElasticNet) {
+      var random_data = [[1, 2], [2, 3], [3, 4]];
+      var target = [1, 2, 3];
+      var glm_model = ElasticNet({'learning_rate': 0.1});
+      glm_model.fit(target, random_data);
+      assert.ok(glm.GLM.testing.fuzzyArrayEqual(glm_model.predict(random_data), [1.15, 2.0, 2.85], 0.05));
     }
   }
 });
-*/
 
 suite.export(module);

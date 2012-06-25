@@ -209,3 +209,44 @@ exports.GLM.utils.sign = function (f) {
     return -1.0;
   }
 };
+
+exports.GLM.utils.norminf = function (array) {
+  // will return infinity norm of input array
+  var a = [];
+  for (var i = 0; i < array.length; i++) {
+    a.push(Math.abs(array[i]));
+  }
+  return Math.max(a);
+};
+
+exports.GLM.utils.norm2 = function (array) {
+  // will return 2 norm of input array
+  var a = 0.0;
+  for (var i = 0; i < array.length; i++) {
+    a += Math.pow(array[i], 2);
+  }
+  return Math.sqrt(a);
+};
+
+exports.GLM.utils.norm1 = function (array) {
+  // will return 1 norm of input array
+  var a = 0.0;
+  for (var i = 0; i < array.length; i++) {
+    a += Math.abs(array[i]);
+  }
+  return a;
+};
+
+exports.GLM.utils.sub = function (A, B) {
+  // pairwise subtraction of two vectors
+  var r = [];
+  for (var i = 0; i < A.length; i++) {
+    r.push(A[i] - B[i]);
+  }
+  return r;
+};
+
+exports.GLM.utils.scalarmul = function (x, A) {
+  // multiply scalar to vector
+  return exports.GLM.utils.map(A, function(a) { return x * a; });
+};

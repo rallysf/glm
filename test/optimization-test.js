@@ -4,25 +4,21 @@ var vows = require('vows'),
 
 var suite = vows.describe('optimization');
 
-/*
 suite.addBatch({
-  "CoordinateDescentPenalizedWeightedLeastSqures": {
-    topic: function () { return glm.optimization.CoordinateDescentPenalizedWeightedLeastSquares; },
-    "should properly converge": function (optimization) {
-
-      var gradientFunction = function (endogenous, exogenous, weights, featureId, elasticnetParameter) {
-        return [0, 0];
-      };
-
-      var endogenous = [[1, 2], [3, 4]],
-          exogenous = [1, 2],
-          weights = optimization(endogenous, exogenous, gradientFunction);
-
-      assert.deepEqual(weights, [1, 2]);
+  "CoordinateDescent": {
+    topic: function () { return glm.GLM.optimization.CoordinateDescent; },
+    "should properly converge given zeros for enet regressions": function (optimization) {
+      var elastic_net_parameters = [0.0, 0.5, 1.0];
+      for (var enet_parameter in elastic_net_parameters) {
+        var endogenous = [[0, 0], [0, 0]],
+            exogenous = [0, 0],
+            weights = optimization(exogenous, endogenous, 0.1, enet_parameter);
+        assert.deepEqual(weights, [0, 0]);
+      }
     }
   }
 });
-*/
+
 suite.addBatch({
   "IRLS": {
     topic: function () { return glm.GLM.optimization.linearSolve; },

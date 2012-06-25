@@ -29,7 +29,9 @@ API changes will probably be made to make GLM.js more in line with the other pop
 
 Usage & Architecture
 ====================
-There is one main function called GLM which expects a distribution to be passed in to it. The families can be found in the families attribute of this GLM function. For example: GLM.families.Gaussian() will initialize a gaussian distribution object.
+There is one main function called GLM which expects a distribution to be passed in to it. The families can be found in the families attribute of this GLM function. For example: `GLM(GLM.families.Gaussian())` will initialize a GLM with Gaussian distribution and `GLM(GLM.families.Binomial())` will initialize a GLM object with a Binomial distribution. Simply initializing `GLM()` with no arguments will default to Gaussian.
+
+Each of these distributions can take 
 
 This is essentially a port of a python GLM implementation that uses the iteratively reweighted least squares algorithm in the excellent [statsmodels](http://statsmodels.sourceforge.net/) library.
 
@@ -42,8 +44,8 @@ $ node
 ```
 
 In browser
------------------
-Just include 'glm.js' as a script in your HTML code.
+----------
+Just include `glm.js` as a script in your HTML code. All objects in the library are attached to the main GLM object.
 
 Examples
 --------

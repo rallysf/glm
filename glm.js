@@ -1,39 +1,82 @@
 (function(exports){
-exports.GLM = function (family, regularization) {
+exports.GLM = function (family) {
   /* Set defaults */
   // default family is Gaussian (linear model)
   if (!family) { family = exports.GLM.families.Gaussian(); }
-
-  // default to no regularization (none supported yet)
-  if (!regularization) { regularization = 'none'; }
 
   // the returned model
   var model = {};
   model.family = family;
   model.weights = null; 
-
-  function constantize (exogenous) {
-    if (!exports.GLM.utils.isArray(exogenous[0])) { 
-      exogenous = exports.GLM.utils.transpose(exports.GLM.utils.atleast_2d(exogenous));
-    }
-    return exports.GLM.utils.add_constant(exogenous);
-  }
-
   model.fit = function (endogenous, exogenous) {
     exogenous = constantize(exogenous);
     model.weights = exports.GLM.optimization.IRLS(endogenous, exogenous, model.family);
-    //model.weights = exports.GLM.optimization.CoordinateDescent(endogenous, exogenous);
     return this;
   };
-
   model.predict = function (exogenous) {
     exogenous = constantize(exogenous)
     var linear = exports.GLM.utils.dot(exogenous, model.weights);
     return model.family.fitted(linear);
   };
-
   return model;
+};
+
+exports.GLM.ElasticNet = function (parameters) {
+  /* Set defaults */
+  // default family is Gaussian (linear model)
+  parameters = elastic_net_parameters(parameters);
+
+  // the returned model
+  var model = {};
+  model.family = parameters.family;
+  model.elastic_net_parameter = parameters.elastic_net_parameter;
+  model.learning_rate = parameters.learning_rate;
+  model.weights = null; 
+  model.fit = function (endogenous, exogenous) {
+    model.data = constantize(exogenous);
+    model.target = endogenous;
+    model.weights = exports.GLM.optimization.CoordinateDescent(model.target, model.data, model.learning_rate, model.elastic_net_parameter);
+    return this;
+  };
+  model.predict = function (exogenous) {
+    exogenous = constantize(exogenous)
+    var linear = exports.GLM.utils.dot(exogenous, model.weights);
+    return model.family.fitted(linear);
+  };
+  return model;
+};
+
+exports.GLM.Lasso = function (parameters) {
+  if (!parameters) { parameters = {}; }
+  parameters.elastic_net_parameter = 1.0;
+  return exports.GLM.ElasticNet(parameters);
+};
+
+exports.Ridge = function (family) {
+  if (!parameters) { parameters = {}; }
+  parameters.elastic_net_parameter = 0.0;
+  return exports.GLM.ElasticNet(parameters);
+};
+
+function elastic_net_parameters(custom_parameters) {
+  var params = {
+    'learning_rate': 1.0,
+    'elastic_net_parameter': 0.5,
+    'family': exports.GLM.families.Gaussian()
+  };
+  for (var key in custom_parameters) {
+    params[key] = custom_parameters[key];
+  }
+  return params;
 }
+
+function constantize(exogenous) {
+  if (!exports.GLM.utils.isArray(exogenous[0])) { 
+    exogenous = exports.GLM.utils.transpose(exports.GLM.utils.atleast_2d(exogenous));
+  }
+  return exports.GLM.utils.add_constant(exogenous);
+}
+
 /******************************************************************\
 For an m-by-n matrix A with m >= n, the Thin Singular Value Decomposition
 (See: http://en.wikipedia.org/wiki/Singular_value_decomposition#Thin_SVD )
@@ -782,6 +825,47 @@ exports.GLM.utils.sign = function (f) {
     return -1.0;
   }
 };
+
+exports.GLM.utils.norminf = function (array) {
+  // will return infinity norm of input array
+  var a = [];
+  for (var i = 0; i < array.length; i++) {
+    a.push(Math.abs(array[i]));
+  }
+  return Math.max(a);
+};
+
+exports.GLM.utils.norm2 = function (array) {
+  // will return 2 norm of input array
+  var a = 0.0;
+  for (var i = 0; i < array.length; i++) {
+    a += Math.pow(array[i], 2);
+  }
+  return Math.sqrt(a);
+};
+
+exports.GLM.utils.norm1 = function (array) {
+  // will return 1 norm of input array
+  var a = 0.0;
+  for (var i = 0; i < array.length; i++) {
+    a += Math.abs(array[i]);
+  }
+  return a;
+};
+
+exports.GLM.utils.sub = function (A, B) {
+  // pairwise subtraction of two vectors
+  var r = [];
+  for (var i = 0; i < A.length; i++) {
+    r.push(A[i] - B[i]);
+  }
+  return r;
+};
+
+exports.GLM.utils.scalarmul = function (x, A) {
+  // multiply scalar to vector
+  return exports.GLM.utils.map(A, function(a) { return x * a; });
+};
 exports.GLM.families = exports.GLM.families || {};
 
 exports.GLM.families.Binomial = function (link) {
@@ -905,19 +989,18 @@ exports.GLM.links.NegativeBinomial = function (alpha) {
 exports.GLM.optimization = exports.optimization || {};
 
 /* TODO: test this, support non-gaussian families */
-exports.GLM.optimization.CoordinateDescent = function (exogenous,
-                                                       endogenous,
+exports.GLM.optimization.CoordinateDescent = function (endogenous,
+                                                       exogenous,
                                                        learning_rate,
                                                        elastic_net_parameter,
                                                        maxIterations) {
   // initialize defaults
-  /* TODO: find correct initial parameters */
   if (!learning_rate) { learning_rate = 0.1; } // alpha
-  if (!elastic_net_parameter) { elastic_net_parameter = 0.9; } // rho
+  if (!elastic_net_parameter) { elastic_net_parameter = 0.5; } // rho
   if (!maxIterations) { maxIterations = 1000; }
 
-  var n_features = endogenous[0].length,
-      n_samples = endogenous.length;
+  var n_features = exogenous[0].length,
+      n_samples = exogenous.length;
 
   var alpha = learning_rate * elastic_net_parameter * n_samples,
       beta = learning_rate * (1.0 - elastic_net_parameter) * n_samples;
@@ -925,27 +1008,30 @@ exports.GLM.optimization.CoordinateDescent = function (exogenous,
   var converged = false,
       iteration = 0,
       weights = exports.GLM.utils.zeros(n_features),
-      endogenousT = exports.GLM.utils.transpose(endogenous),
-      column_norms = exports.GLM.utils.map(endogenousT, function (x) {
+      exogenousT = exports.GLM.utils.transpose(exogenous),
+      column_norms = exports.GLM.utils.map(exogenousT, function (x) {
         return exports.GLM.utils.sum(exports.GLM.utils.map(x, function (xx) { return Math.pow(xx, 2); }));
       }),
-      R = exports.GLM.utils.map(exports.GLM.utils.dot(endogenous, weights), function (v, i) { return exogenous[i] - v; }),
-      tmp, d_w_max, d_w_ii, w_max;
+      R = exports.GLM.utils.map(exports.GLM.utils.dot(exogenous, weights), function (v, i) { return endogenous[i] - v; }),
+      tmp, d_w_max, d_w_ii, w_max, gap;
 
+  var tol = 1e-4;
+  tol = tol * Math.pow(exports.GLM.utils.norm2(endogenous), 2);
   while (!converged) {
     /* column iteration */
     for (var feature_id = 0; feature_id < n_features; feature_id++) {
       var w_ii = weights[feature_id];
+      if (column_norms[feature_id] == 0.0) { continue; }
       if (w_ii != 0.0) {
-        exports.GLM.utils.map(endogenousT[feature_id], function (x_ii, i) {
+        exports.GLM.utils.map(exogenousT[feature_id], function (x_ii, i) {
           R[i] += w_ii * x_ii;
         });
       }
-      tmp = exports.GLM.utils.sum(exports.GLM.utils.map(endogenousT[feature_id], function (v, i) { return v * R[i]; }));
+      tmp = exports.GLM.utils.sum(exports.GLM.utils.map(exogenousT[feature_id], function (v, i) { return v * R[i]; }));
 
       weights[feature_id] = exports.GLM.utils.sign(tmp) * Math.max(Math.abs(tmp) - alpha, 0) / (column_norms[feature_id] + beta);
 
-      exports.GLM.utils.map(endogenousT[feature_id], function (x_ii, i) {
+      exports.GLM.utils.map(exogenousT[feature_id], function (x_ii, i) {
         R[i] -= weights[feature_id] * x_ii;
       });
       d_w_ii = Math.abs(weights[feature_id] - w_ii);
@@ -953,7 +1039,21 @@ exports.GLM.optimization.CoordinateDescent = function (exogenous,
       w_max = Math.max(w_max, Math.abs(weights[feature_id]));
     }
     iteration += 1;
-    converged = (w_max == 0.0 || d_w_max / w_max < 1e-5 || iteration == maxIterations);
+    if (w_max == 0.0 || d_w_max / w_max < 1e-5 || iteration == maxIterations) {
+      var dual_norm_XtA = exports.GLM.utils.norminf(exports.GLM.utils.sub(exports.GLM.utils.dot(exogenousT, R), exports.GLM.utils.scalarmul(beta, weights)));
+      var R_norm = exports.GLM.utils.norm2(R);
+      var w_norm = exports.GLM.utils.norm2(weights);
+      if (dual_norm_XtA > alpha) {
+        var c = alpha / dual_norm_XtA;
+        var A_norm = R_norm * c;
+        gap = 0.5 * (Math.pow(R_norm, 2) + Math.pow(A_norm, 2));
+      } else {
+        var c = 1.0;
+        var gap = Math.pow(R_norm, 2);
+        gap += alpha * exports.GLM.utils.norm1(weights) - exports.GLM.utils.scalarmul(c, exports.GLM.utils.dot(exports.GLM.utils.transpose(R), endogenous)) +  0.5 * beta * (1 + Math.pow(c, 2)) * (Math.pow(w_norm, 2));
+      }
+      converged = gap < tol || iteration == maxIterations;
+    }
   }
   return weights;
 };
